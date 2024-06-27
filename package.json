@@ -1,0 +1,11 @@
+{
+  "name": "multi-starter",
+  "version": "1.0.0",
+  "description": "runner for multirepo with js",
+  "main": "index.js",
+  "author": "d0422",
+  "license": "MIT",
+  "bin": {
+    "multi-start": "./index.js"
+  }
+}
