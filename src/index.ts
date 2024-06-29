@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import path from 'path';
-import { readdir } from 'fs';
+import { readFile, readdir } from 'fs';
 
 const currentPath = process.cwd();
 
@@ -26,15 +26,38 @@ const findPackageJson = async (pathString: string) => {
   });
 };
 
+const findCommand = async (packageJsonPath: string) => {
+  return new Promise((resolve, reject) => {
+    readFile(`${packageJsonPath}/package.json`, 'utf-8', (err, data) => {
+      if (err) reject(`Cannot find package.json in ${packageJsonPath}`);
+
+      const parsedJson = JSON.parse(data);
+      resolve({
+        path: packageJsonPath,
+        command: parsedJson['scripts']['start'],
+      });
+    });
+  });
+};
+
+const getExecutableDirectories = async (allDirectories: string[]) => {
+  const result = [];
+  for (const directory of allDirectories) {
+    const isExecutable = await findPackageJson(directory);
+
+    isExecutable && result.push(directory);
+  }
+
+  return result;
+};
+
 const run = async () => {
-  const directories = await getAllDirectory();
-  const pakcageJsonList = await Promise.all(
-    directories.filter(async (directory) => {
-      const packageJson = await findPackageJson(directory);
-      return packageJson;
-    })
+  const allDirectories = await getAllDirectory();
+  const pakcageJsonList = await getExecutableDirectories(allDirectories);
+  const commandObject = await Promise.all(
+    pakcageJsonList.map(async (packageJson) => await findCommand(packageJson))
   );
-  console.log(pakcageJsonList);
+  console.log(commandObject);
 };
 
 run();
