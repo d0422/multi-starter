@@ -1,6 +1,6 @@
 {
   "name": "multi-starter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "runner for multirepo with js",
   "main": "index.js",
   "author": "d0422",
@@ -12,13 +12,12 @@
     "build": "tsc && chmod +x ./dist/index.js"
   },
   "dependencies": {
-    "@types/inquirer": "^9.0.7",
-    "typescript": "^5.5.2"
-  },
-  "devDependencies": {
-    "@types/node": "^20.14.9",
+    "typescript": "^5.5.2",
     "inquirer": "^9.3.1"
   },
-  "type":"module"
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.14.9"
+  },
+  "type": "module"
 }
-
