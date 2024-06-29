@@ -6,6 +6,15 @@
   "author": "d0422",
   "license": "MIT",
   "bin": {
-    "multi-start": "./index.js"
+    "multi-start": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x ./dist/index.js"
+  },
+  "dependencies": {
+    "typescript": "^5.5.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9"
   }
 }
