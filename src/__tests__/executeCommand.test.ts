@@ -6,7 +6,6 @@ jest.mock('child_process', () => ({
     on: jest.fn(),
   })),
 }));
-
 const temp = console.error;
 
 beforeEach(() => {
@@ -15,6 +14,9 @@ beforeEach(() => {
 
 beforeAll(() => {
   console.error = jest.fn();
+  Object.defineProperty(process, 'platform', {
+    value: 'darwin', //default platform is MacOS
+  });
 });
 
 afterAll(() => {
@@ -22,7 +24,7 @@ afterAll(() => {
 });
 
 describe('test executeCommand', () => {
-  it('if executable is true, it can spawn process', () => {
+  it('should spawn process when executable is true', () => {
     executeCommand(
       { path: 'somePath', executable: true, packageManager: 'npm' },
       'install'
@@ -30,10 +32,11 @@ describe('test executeCommand', () => {
     expect(childProcess.spawn).toHaveBeenCalledWith('npm', ['install'], {
       cwd: 'somePath',
       stdio: 'inherit',
+      shell: false,
     });
   });
 
-  it('if executable is false, it does not spawn process', () => {
+  it('should not spawn process when executable is false, ', () => {
     executeCommand(
       { path: 'somePath', executable: false, packageManager: 'yarn' },
       'start'
@@ -41,7 +44,22 @@ describe('test executeCommand', () => {
     expect(childProcess.spawn).not.toHaveBeenCalledWith(
       'yarn',
       ['run', 'start'],
-      { cwd: 'somePath', stdio: 'inherit' }
+      { cwd: 'somePath', stdio: 'inherit', shell: false }
     );
+  });
+
+  it('should set shell to true when OS is Windows', () => {
+    Object.defineProperty(process, 'platform', {
+      value: 'win32',
+    });
+    executeCommand(
+      { path: 'somePath', executable: true, packageManager: 'yarn' },
+      'start'
+    );
+    expect(childProcess.spawn).toHaveBeenCalledWith('yarn', ['run', 'start'], {
+      cwd: 'somePath',
+      stdio: 'inherit',
+      shell: true,
+    });
   });
 });

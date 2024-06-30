@@ -11,6 +11,7 @@ export const executeCommand = (
     const child = spawn(packageManager, args, {
       cwd: path,
       stdio: 'inherit',
+      shell: process.platform === 'win32' ? true : false,
     });
 
     child.on('error', (err) => {
