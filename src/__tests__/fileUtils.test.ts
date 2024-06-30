@@ -2,12 +2,20 @@ import {
   getPackageManager,
   getAllDirectoryInCurrentPath,
   getExecutableDirectories,
+  findCommand,
 } from '../fileUtils';
-import { Dirent, readdir } from 'fs';
+import { Dirent, readFile, readdir } from 'fs';
 import * as FileUtilsModule from '../fileUtils';
 
 jest.mock('fs');
 const mockedReaddir = readdir as jest.MockedFunction<typeof readdir>;
+const mockedReadFile = readFile as unknown as jest.MockedFunction<
+  (
+    path: string,
+    options: string,
+    callback: (err: NodeJS.ErrnoException | null, data: string) => void
+  ) => void
+>;
 
 describe('getAllDirectoryInCurrentPath', () => {
   it('should resolve with an array of directory names', async () => {
@@ -89,5 +97,83 @@ describe('getExecutableDirectories', () => {
     jest.spyOn(FileUtilsModule, 'getPackageManager').mockResolvedValue('npm');
     const result = await getExecutableDirectories(['dir1', 'dir2', 'dir3']);
     expect(result.length).toBe(3);
+  });
+});
+
+describe('findCommand', () => {
+  it('should resolve executable object when correct command is found in package.json', async () => {
+    const scriptJson = `{
+  "scripts": {
+    "start": "vite"
+  }
+}`;
+
+    mockedReadFile.mockImplementationOnce((_, _2, callback) => {
+      callback(null, scriptJson);
+    });
+    const result = await findCommand(
+      { path: 'somePath', packageManager: 'npm' },
+      'start'
+    );
+    expect(result).toEqual({
+      path: 'somePath',
+      packageManager: 'npm',
+      executable: true,
+    });
+  });
+
+  it('should resolve unexecutable object when correct command is not found in package.json', async () => {
+    const scriptJson = `{
+  "scripts": {
+    "dev": "vite"
+  }
+}`;
+
+    mockedReadFile.mockImplementationOnce((_, _2, callback) => {
+      callback(null, scriptJson);
+    });
+    const result = await findCommand(
+      { path: 'somePath', packageManager: 'npm' },
+      'start'
+    );
+    expect(result).toEqual({
+      path: 'somePath',
+      packageManager: 'npm',
+      executable: false,
+    });
+
+    mockedReadFile.mockImplementationOnce((_, _2, callback) => {
+      callback(null, scriptJson);
+    });
+    const result2 = await findCommand(
+      { path: 'somePath', packageManager: 'npm' },
+      'dev'
+    );
+    expect(result2).toEqual({
+      path: 'somePath',
+      packageManager: 'npm',
+      executable: true,
+    });
+  });
+
+  it('should resolve executable object when command is install', async () => {
+    const scriptJson = `{
+  "scripts": {
+    "start": "vite"
+  }
+}`;
+
+    mockedReadFile.mockImplementationOnce((_, _2, callback) => {
+      callback(null, scriptJson);
+    });
+    const result = await findCommand(
+      { path: 'somePath', packageManager: 'yarn' },
+      'install'
+    );
+    expect(result).toEqual({
+      path: 'somePath',
+      packageManager: 'yarn',
+      executable: true,
+    });
   });
 });
