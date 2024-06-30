@@ -9,7 +9,7 @@ import { CommandObject } from './type.js';
 
 const currentPath = process.cwd();
 
-const getAllDirectory = async () => {
+const getAllDirectoryInCurrentPath = async () => {
   return await new Promise<string[]>((resolve, reject) =>
     readdir(currentPath, { withFileTypes: true }, (err, files) => {
       resolve(
@@ -56,7 +56,7 @@ const getExecutableDirectories = async (allDirectories: string[]) => {
 };
 
 const run = async () => {
-  const allDirectories = await getAllDirectory();
+  const allDirectories = await getAllDirectoryInCurrentPath();
   const packageJsonList = await getExecutableDirectories(allDirectories);
 
   const choosedPackage = await getChoosedPackage(packageJsonList);
