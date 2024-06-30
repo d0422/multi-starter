@@ -2,7 +2,7 @@
   "name": "multi-starter",
   "version": "1.1.1",
   "description": "runner for multirepo with js",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "author": "d0422",
   "license": "MIT",
   "bin": {
