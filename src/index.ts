@@ -1,20 +1,13 @@
 #!/usr/bin/env node
-import path, { parse } from 'path';
+import path from 'path';
 import { readFile, readdir } from 'fs';
 import { getChoosedPackage } from './prompts/getChoosedPakcage.js';
 import { getChoosedCommand } from './prompts/getChoosedCommand.js';
 import { spawn } from 'child_process';
+import { executeCommand } from './executeCommand.js';
+import { CommandObject } from './type.js';
 
 const currentPath = process.cwd();
-
-export interface ChoosePackage {
-  package: string[];
-}
-
-interface CommandObject {
-  path: string;
-  executable: boolean;
-}
 
 const getAllDirectory = async () => {
   return await new Promise<string[]>((resolve, reject) =>
@@ -68,35 +61,14 @@ const run = async () => {
 
   const choosedPackage = await getChoosedPackage(packageJsonList);
   const answer = await getChoosedCommand();
-
   const commandObjects = await Promise.all(
-    choosedPackage['package']
+    choosedPackage
       .map((packageJson) => path.resolve(currentPath, packageJson))
-      .map(
-        async (packageJson) => await findCommand(packageJson, answer['command'])
-      )
+      .map(async (packageJson) => await findCommand(packageJson, answer))
   );
-  commandObjects.forEach(({ path, executable }) => {
-    if (executable) {
-      const args =
-        answer.command === 'install' ? ['install'] : ['run', answer.command];
-
-      const child = spawn('npm', args, {
-        cwd: path,
-        stdio: 'inherit',
-      });
-
-      child.on('error', (err) => {
-        console.error(`Error executing command in ${path}:`, err);
-      });
-
-      child.on('close', (code) => {
-        console.log(`Command executed in ${path} exited with code ${code}`);
-      });
-    } else {
-      console.error(`Command not found in ${path}`);
-    }
-  });
+  commandObjects.forEach((commandObject) =>
+    executeCommand(commandObject, answer)
+  );
 };
 
 run();
