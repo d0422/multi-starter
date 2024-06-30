@@ -19,7 +19,6 @@
     "typescript": "^5.5.2"
   },
   "devDependencies": {
-    "@types/inquirer": "^9.0.7",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.14.9",
     "ts-jest-resolver": "^2.0.1"

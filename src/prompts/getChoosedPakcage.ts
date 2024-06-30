@@ -1,13 +1,11 @@
-import { ChoosePackage } from '../index.js';
-import inquirer from 'inquirer';
+import { checkbox } from '@inquirer/prompts';
 
 export const getChoosedPackage = async (packageJsonList: string[]) => {
-  return await inquirer.prompt<ChoosePackage>([
-    {
-      type: 'checkbox',
-      name: 'package',
-      message: 'Choose packages you want to run',
-      choices: packageJsonList,
-    },
-  ]);
+  return await checkbox({
+    message: 'Choose packages you want to run',
+    choices: packageJsonList.map((packageJson) => ({
+      name: packageJson,
+      value: packageJson,
+    })),
+  });
 };

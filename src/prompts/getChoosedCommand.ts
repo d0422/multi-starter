@@ -1,12 +1,13 @@
-import inquirer from 'inquirer';
+import { select } from '@inquirer/prompts';
+
+const COMMAND_SET = ['install', 'start', 'dev'];
 
 export const getChoosedCommand = async () => {
-  return await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'command',
-      message: 'Choose script command : ',
-      choices: ['install', 'start', 'dev'],
-    },
-  ]);
+  return await select({
+    message: 'Choose script command : ',
+    choices: COMMAND_SET.map((command) => ({
+      name: command,
+      value: command,
+    })),
+  });
 };
