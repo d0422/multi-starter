@@ -1,6 +1,7 @@
 import { readFile, readdir } from 'fs';
 import path from 'path';
 import { CommandObject, ExecutableDirectory, PackageManager } from './type';
+import chalk from 'chalk';
 
 export const getAllDirectoryInCurrentPath = async (currentPath: string) => {
   return await new Promise<string[]>((resolve, reject) =>
@@ -52,7 +53,10 @@ export const findCommand = async (
       'utf-8',
       (err, data) => {
         if (err)
-          reject(`Cannot find package.json in ${executableDirectory.path}`);
+          reject(
+            chalk.red(`Cannot find package.json in ${executableDirectory.path}`)
+          );
+
         const parsedJson = JSON.parse(data);
         const executable =
           command === 'install' ? true : !!parsedJson['scripts'][command];

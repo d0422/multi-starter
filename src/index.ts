@@ -8,6 +8,7 @@ import {
   getAllDirectoryInCurrentPath,
   getExecutableDirectories,
 } from './fileUtils.js';
+import chalk from 'chalk';
 
 const currentPath = process.cwd();
 
@@ -15,8 +16,17 @@ const run = async () => {
   const allDirectories = await getAllDirectoryInCurrentPath(currentPath);
   const packageJsonList = await getExecutableDirectories(allDirectories);
 
+  if (packageJsonList.length === 0) {
+    console.error(chalk.red('There is no executable package directory'));
+    return;
+  }
+
   const choosedPackage = await getChoosedPackage(packageJsonList);
+  if (!choosedPackage) return;
+
   const answer = await getChoosedCommand();
+  if (!answer) return;
+
   const commandObjects = await Promise.all(
     choosedPackage
       .map((packageJson) => ({
