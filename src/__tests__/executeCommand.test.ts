@@ -23,12 +23,25 @@ afterAll(() => {
 
 describe('test executeCommand', () => {
   it('if executable is true, it can spawn process', () => {
-    executeCommand({ path: 'somePath', executable: true }, 'install');
-    expect(childProcess.spawn).toHaveBeenCalled();
+    executeCommand(
+      { path: 'somePath', executable: true, packageManager: 'npm' },
+      'install'
+    );
+    expect(childProcess.spawn).toHaveBeenCalledWith('npm', ['install'], {
+      cwd: 'somePath',
+      stdio: 'inherit',
+    });
   });
 
   it('if executable is false, it does not spawn process', () => {
-    executeCommand({ path: 'somePath', executable: false }, 'run');
-    expect(childProcess.spawn).not.toHaveBeenCalled();
+    executeCommand(
+      { path: 'somePath', executable: false, packageManager: 'yarn' },
+      'start'
+    );
+    expect(childProcess.spawn).not.toHaveBeenCalledWith(
+      'yarn',
+      ['run', 'start'],
+      { cwd: 'somePath', stdio: 'inherit' }
+    );
   });
 });

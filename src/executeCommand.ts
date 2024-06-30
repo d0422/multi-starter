@@ -2,13 +2,13 @@ import { spawn } from 'child_process';
 import { CommandObject } from './type';
 
 export const executeCommand = (
-  { executable, path }: CommandObject,
+  { executable, path, packageManager }: CommandObject,
   command: string
 ) => {
   if (executable) {
     const args = command === 'install' ? ['install'] : ['run', command];
 
-    const child = spawn('npm', args, {
+    const child = spawn(packageManager, args, {
       cwd: path,
       stdio: 'inherit',
     });

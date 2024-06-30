@@ -1,5 +1,5 @@
 import {
-  findPackageJson,
+  getPackageManager,
   getAllDirectoryInCurrentPath,
   getExecutableDirectories,
 } from '../fileUtils';
@@ -29,39 +29,64 @@ describe('getAllDirectoryInCurrentPath', () => {
   });
 });
 
-describe('findPackageJson', () => {
-  it('shoud resolve "package.json" when package.json has been founded', async () => {
-    const mockFiles = ['package.json', 'someFile.ts'];
+describe('getPackageManager', () => {
+  it('shoud resolve "yarn" when package.json and yarn.lock have been founded', async () => {
+    const mockFiles = ['package.json', 'someFile.ts', 'yarn.lock'];
 
     mockedReaddir.mockImplementationOnce((path, callback: any) => {
       callback(null, mockFiles);
     });
-    const result = await findPackageJson('somePath');
-    expect(result).toBe('package.json');
+    const result = await getPackageManager('somePath');
+    expect(result).toBe('yarn');
+  });
+
+  it('shoud resolve "pnpm" when package.json and pnpm-lock.yaml have been founded', async () => {
+    const mockFiles = ['package.json', 'someFile.ts', 'pnpm-lock.yaml'];
+
+    mockedReaddir.mockImplementationOnce((path, callback: any) => {
+      callback(null, mockFiles);
+    });
+    const result = await getPackageManager('somePath');
+    expect(result).toBe('pnpm');
+  });
+
+  it('shoud resolve "npm" when only package.json has been founded', async () => {
+    const mockFiles = ['package.json', 'someFile.ts', 'pnpm-lock.yaml'];
+
+    mockedReaddir.mockImplementationOnce((path, callback: any) => {
+      callback(null, mockFiles);
+    });
+    const result = await getPackageManager('somePath');
+    expect(result).toBe('pnpm');
   });
 
   it('shoud resolve undefined when package.json has not been founded', async () => {
-    const mockFiles = ['package.js', 'someFile.ts'];
+    const mockFiles = [
+      'package.js',
+      'someFile.ts',
+      'pnpm-lock.yaml',
+      'yarn.lock',
+    ];
 
     mockedReaddir.mockImplementationOnce((path, callback: any) => {
       callback(null, mockFiles);
     });
-    const result = await findPackageJson('somePath');
+    const result = await getPackageManager('somePath');
     expect(result).toBe(undefined);
   });
 });
 
 describe('getExecutableDirectories', () => {
   it('shoud empty array when isExecuatble is false', async () => {
-    jest.spyOn(FileUtilsModule, 'findPackageJson').mockResolvedValue(undefined);
+    jest
+      .spyOn(FileUtilsModule, 'getPackageManager')
+      .mockResolvedValue(undefined);
     const result = await getExecutableDirectories(['dir1', 'dir2', 'dir3']);
     expect(result.length).toBe(0);
   });
 
   it('shoud full array when isExecuatble is true', async () => {
-    jest
-      .spyOn(FileUtilsModule, 'findPackageJson')
-      .mockResolvedValue('package.json');
+    jest.spyOn(FileUtilsModule, 'getPackageManager').mockResolvedValue('npm');
     const result = await getExecutableDirectories(['dir1', 'dir2', 'dir3']);
     expect(result.length).toBe(3);
   });

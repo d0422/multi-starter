@@ -19,7 +19,10 @@ const run = async () => {
   const answer = await getChoosedCommand();
   const commandObjects = await Promise.all(
     choosedPackage
-      .map((packageJson) => path.resolve(currentPath, packageJson))
+      .map((packageJson) => ({
+        path: path.resolve(currentPath, packageJson.path),
+        packageManager: packageJson.packageManager,
+      }))
       .map(async (packageJson) => await findCommand(packageJson, answer))
   );
   commandObjects.forEach((commandObject) =>
