@@ -1,5 +1,5 @@
-import { exec, spawn } from 'child_process';
-import { CommandObject, PackageManager } from './type';
+import { spawn } from 'child_process';
+import { CommandObject } from './type';
 import chalk from 'chalk';
 import { Command } from './prompts/getChoosedCommand';
 

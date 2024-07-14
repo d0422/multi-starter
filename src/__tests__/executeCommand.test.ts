@@ -1,5 +1,7 @@
 import { executeCommand } from '../executeCommand';
+import * as MockExecutableCommandObject from '../executeCommand';
 import childProcess from 'child_process';
+import { CommandObject, PackageManager } from '../type';
 
 jest.mock('child_process', () => ({
   spawn: jest.fn(() => ({
@@ -61,5 +63,24 @@ describe('test executeCommand', () => {
       stdio: 'inherit',
       shell: true,
     });
+  });
+
+  it('should call executeMultipleCommand when command is instlal + dev or install + start', () => {
+    jest.spyOn(MockExecutableCommandObject, 'executeMultipleCommand');
+    const callObject = {
+      executable: true,
+      path: 'somePath',
+      packageManager: 'npm' as PackageManager,
+    };
+
+    executeCommand(callObject, 'install + dev');
+    expect(
+      MockExecutableCommandObject.executeMultipleCommand
+    ).toHaveBeenCalledWith(callObject, 'install + dev');
+
+    executeCommand(callObject, 'install + start');
+    expect(
+      MockExecutableCommandObject.executeMultipleCommand
+    ).toHaveBeenCalledWith(callObject, 'install + start');
   });
 });
