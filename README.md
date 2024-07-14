@@ -16,7 +16,7 @@ The cli program allows you to select projects (multiple) and commands.
 
 2. Choose script command
 
-   <img width="584" alt="image" src="https://github.com/d0422/multi-starter/assets/99241871/78f07c14-d765-47ca-a297-30c3339788ae">
+   <img width="554" alt="image" src="https://github.com/user-attachments/assets/544e8b24-4f5d-4533-89c0-cffd7486a45b">
 
 3. Now, Enjoy your development
 
