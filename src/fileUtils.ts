@@ -1,7 +1,13 @@
 import { readFile, readdir } from 'fs';
 import path from 'path';
-import { CommandObject, ExecutableDirectory, PackageManager } from './type';
+import {
+  CommandObject,
+  ExecutableDirectory,
+  PackageJson,
+  PackageManager,
+} from './type';
 import chalk from 'chalk';
+import { Command } from './prompts/getChoosedCommand';
 
 export const getAllDirectoryInCurrentPath = async (currentPath: string) => {
   return await new Promise<string[]>((resolve, reject) =>
@@ -43,9 +49,16 @@ export const getExecutableDirectories = async (
   return result;
 };
 
+const getIsExecutable = (command: Command, parsedJson: PackageJson) => {
+  if (command === 'install') return true;
+  if (command === 'install + dev') return !!parsedJson['scripts']['dev'];
+  if (command === 'install + start') return !!parsedJson['scripts']['start'];
+  return !!parsedJson['scripts'][command];
+};
+
 export const findCommand = async (
   executableDirectory: ExecutableDirectory,
-  command: string
+  command: Command
 ) => {
   return new Promise<CommandObject>((resolve, reject) => {
     readFile(
@@ -57,9 +70,8 @@ export const findCommand = async (
             chalk.red(`Cannot find package.json in ${executableDirectory.path}`)
           );
 
-        const parsedJson = JSON.parse(data);
-        const executable =
-          command === 'install' ? true : !!parsedJson['scripts'][command];
+        const parsedJson: PackageJson = JSON.parse(data);
+        const executable = getIsExecutable(command, parsedJson);
         resolve({
           path: executableDirectory.path,
           packageManager: executableDirectory.packageManager,

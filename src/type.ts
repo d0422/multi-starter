@@ -10,3 +10,7 @@ export interface CommandObject {
   executable: boolean;
   packageManager: PackageManager;
 }
+
+export interface PackageJson {
+  scripts: Record<string, string>;
+}

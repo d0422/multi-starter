@@ -1,10 +1,11 @@
-import { spawn } from 'child_process';
-import { CommandObject } from './type';
+import { exec, spawn } from 'child_process';
+import { CommandObject, PackageManager } from './type';
 import chalk from 'chalk';
+import { Command } from './prompts/getChoosedCommand';
 
-export const executeCommand = (
+export const runCommand = (
   { executable, path, packageManager }: CommandObject,
-  command: string
+  command: Command
 ) => {
   if (executable) {
     const args = command === 'install' ? ['install'] : ['run', command];
@@ -27,4 +28,38 @@ export const executeCommand = (
   } else {
     console.error(chalk.red(`Command not found in ${path}`));
   }
+};
+
+export const executeMultipleCommand = (
+  { executable, path, packageManager }: CommandObject,
+  command: Command
+) => {
+  const child = spawn(packageManager, ['install'], {
+    cwd: path,
+    stdio: 'inherit',
+    shell: process.platform === 'win32' ? true : false,
+  });
+
+  child.on('exit', () => {
+    if (command === 'install + dev')
+      return runCommand({ executable, path, packageManager }, 'dev');
+    return runCommand({ executable, path, packageManager }, 'start');
+  });
+};
+
+export const executeCommand = (
+  { executable, path, packageManager }: CommandObject,
+  command: Command
+) => {
+  if (!executable)
+    return console.error(chalk.red(`Command not found in ${path}`));
+
+  if (command === 'install + dev' || command == 'install + start') {
+    return executeMultipleCommand(
+      { executable, path, packageManager },
+      command
+    );
+  }
+
+  return runCommand({ executable, path, packageManager }, command);
 };

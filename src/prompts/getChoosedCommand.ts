@@ -1,7 +1,15 @@
 import { select } from '@inquirer/prompts';
 import chalk from 'chalk';
 
-const COMMAND_SET = ['install', 'start', 'dev'];
+const COMMAND_SET = [
+  'install',
+  'start',
+  'dev',
+  'install + start',
+  'install + dev',
+] as const;
+
+export type Command = (typeof COMMAND_SET)[number];
 
 export const getChoosedCommand = async () => {
   try {
